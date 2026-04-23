@@ -53,22 +53,39 @@ export const Waveform = ({ url, isRecording, analyser }: Props) => {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      const barWidth = (canvas.width / bufferLength) * 2.5;
-      let barHeight;
-      let x = 0;
+      const barWidth = 4;
+      const gap = 2;
+      const barCount = Math.floor(canvas.width / (barWidth + gap) / 2);
+      const centerY = canvas.height / 2;
 
-      for (let i = 0; i < bufferLength; i++) {
-        barHeight = (dataArray[i] / 255) * canvas.height;
+      // Draw bars from center outwards
+      for (let i = 0; i < barCount; i++) {
+        // Use lower frequencies more prominently
+        const freqIndex = Math.floor((i / barCount) * (bufferLength / 2));
+        const val = dataArray[freqIndex];
+        const barHeight = (val / 255) * (canvas.height * 0.8) + 2;
+
+        const xRight = (canvas.width / 2) + (i * (barWidth + gap));
+        const xLeft = (canvas.width / 2) - (i * (barWidth + gap)) - barWidth;
 
         // Gradient color
-        const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
+        const gradient = ctx.createLinearGradient(0, centerY - barHeight / 2, 0, centerY + barHeight / 2);
         gradient.addColorStop(0, '#6366f1');
         gradient.addColorStop(1, '#a855f7');
-        
         ctx.fillStyle = gradient;
-        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
 
-        x += barWidth + 2;
+        // Rounded rectangles for pillars
+        const drawPillar = (x: number) => {
+          const radius = barWidth / 2;
+          const y = centerY - barHeight / 2;
+          
+          ctx.beginPath();
+          ctx.roundRect(x, y, barWidth, barHeight, radius);
+          ctx.fill();
+        };
+
+        drawPillar(xRight);
+        drawPillar(xLeft);
       }
     };
 

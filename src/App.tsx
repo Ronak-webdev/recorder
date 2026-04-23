@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect } from 'react'
 import { Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom'
 import { Mic, Shield, List, ChevronRight, Upload, X, Square, LayoutDashboard, Settings, Activity, User as UserIcon, Moon, Sun, Database, Sparkles, LogOut, Lock, Eye, EyeOff, UserCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -91,9 +91,13 @@ function App() {
   
   // Persistent Theme Logic
   const [darkMode, setDarkMode] = useState(() => {
+    // Force default to Light unless explicitly set to 'dark'
     const saved = localStorage.getItem('theme')
-    return saved ? saved === 'dark' : true
+    if (saved === null) return false
+    return saved === 'dark'
   })
+
+
 
   // User Profile Logic
   const [userName, setUserName] = useState(() => localStorage.getItem('recorder_user_name') || '')
@@ -113,26 +117,48 @@ function App() {
 
   // Handle Session & Theme Persistence
   useEffect(() => {
-    const bootstrapSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        setSession(session)
-      } finally {
-        setIsSessionLoading(false)
-      }
-    }
+    let mounted = true;
 
-    bootstrapSession()
+    const bootstrap = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (mounted) {
+          setSession(session);
+          
+          // Pre-fetch sequence if session exists
+          if (session) {
+            const nextId = await RecordingService.getNextSmartId(speakerId);
+            setPredictedId(nextId);
+          }
+          
+          setIsSessionLoading(false);
+        }
+      } catch (err) {
+        console.error('Auth error:', err);
+        if (mounted) {
+          setIsSessionLoading(false);
+        }
+      }
+    };
+
+    bootstrap();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setIsSessionLoading(false)
-    })
+      if (mounted) {
+        setSession(session);
+        setIsSessionLoading(false);
+      }
+    });
 
-    return () => subscription.unsubscribe()
-  }, [])
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
-  useEffect(() => {
+
+
+  useLayoutEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark')
       localStorage.setItem('theme', 'dark')
@@ -142,25 +168,28 @@ function App() {
     }
   }, [darkMode])
 
+
   const syncSequence = async () => {
-    if (!session) return
+    if (!session || isRefreshing) return
     setIsRefreshing(true)
     try {
       const nextId = await RecordingService.getNextSmartId(speakerId)
-      setPredictedId(nextId)
+      if (nextId !== predictedId) {
+        setPredictedId(nextId)
+      }
     } catch (err: any) {
       console.warn('Could not sync sequence:', err?.message || err)
-      setPredictedId(`${speakerId}_${Date.now().toString().slice(-4)}`)
+      setPredictedId(`${speakerId}001`)
     } finally {
-      setTimeout(() => setIsRefreshing(false), 500)
+      setIsRefreshing(false)
     }
   }
 
   useEffect(() => {
-    if (!session) return
-    const timer = setTimeout(() => syncSequence(), 500)
-    return () => clearTimeout(timer)
+    if (!session || isSessionLoading) return
+    syncSequence()
   }, [speakerId, session])
+
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -253,18 +282,20 @@ function App() {
     }
   }
 
+  // Consolidate rendering to prevent flickering
   if (isSessionLoading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
         <div className="w-14 h-14 border-4 border-primary-light/30 border-t-primary-light rounded-full animate-spin" />
       </div>
-    )
+    );
   }
 
   if (!session) {
     return (
-      <div className={`min-h-screen flex items-center justify-center p-4 md:p-6 mesh-bg transition-colors duration-500`}>
+      <div className={`min-h-screen flex items-center justify-center p-4 md:p-6 mesh-bg`}>
         <motion.div 
+
           initial={{ opacity: 0, scale: 0.95, y: 20 }} 
           animate={{ opacity: 1, scale: 1, y: 0 }} 
           className="w-full max-w-md liquid-glass p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group"
@@ -354,7 +385,7 @@ function App() {
           </div>
         </motion.div>
       </div>
-    )
+    );
   }
 
   if (!userName) {
@@ -372,8 +403,9 @@ function App() {
           </form>
         </motion.div>
       </div>
-    )
+    );
   }
+
 
 
   const navItemClass = ({ isActive }: { isActive: boolean }) => 
@@ -384,7 +416,8 @@ function App() {
     }`
 
   return (
-    <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] flex flex-col font-space transition-colors pb-20 md:pb-0">
+    <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] flex flex-col font-space pb-20 md:pb-0">
+
       {/* Desktop Header */}
       <nav className="h-20 border-b border-[var(--border-color)] px-4 md:px-8 flex items-center justify-between sticky top-0 bg-[var(--bg-color)]/80 backdrop-blur-xl z-50">
         <div className="flex items-center gap-4 md:gap-10">
@@ -429,7 +462,8 @@ function App() {
         </NavLink>
       </nav>
 
-      <main className="flex-1 p-6 md:p-12 overflow-y-auto">
+      <main className="flex-1 p-6 md:p-12 overflow-y-auto scrollbar-hide">
+
         <Routes>
           <Route path="/" element={
             <RecorderView 

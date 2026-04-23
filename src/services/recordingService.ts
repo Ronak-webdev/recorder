@@ -47,19 +47,21 @@ export const RecordingService = {
         .from('recordings')
         .select('display_id')
         .ilike('display_id', `${seed}%`)
-        .order('created_at', { ascending: false })
+        .order('display_id', { ascending: false })
         .limit(1);
 
-      // Handle errors gracefully - table missing, RLS blocking, etc.
+      // Handle errors gracefully
       if (error) {
-        console.warn('Database query error (proceeding with fallback):', error.message);
-        // Return a timestamp-based fallback ID
-        return `${seed}_${Date.now().toString().slice(-4)}`;
+        console.warn('Database query error:', error.message);
+        return `${seed}001`;
       }
 
       if (!data || data.length === 0) {
-        // If no history found, return the seed as the first ID
-        return seed;
+        // If no history found, check if the seed itself has a numeric pattern
+        const numericMatch = seed.match(/\d+$/);
+        if (numericMatch) return seed;
+        // Default to starting with 001
+        return `${seed}001`;
       }
 
       // If history found, use AI utility to predict the next step

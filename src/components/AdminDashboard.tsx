@@ -381,56 +381,64 @@ export const AdminDashboard = () => {
                </div>
             </div>
 
-            <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-sm">
-              {/* Desktop Table View */}
-              <table className="hidden md:table w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-[var(--border-color)] bg-slate-50 dark:bg-slate-900/50">
-                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-400">Recording ID</th>
-                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-400">User</th>
-                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-400">Duration</th>
-                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-400">Created At</th>
-                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-400 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border-color)]">
-                  {filteredRecordings.map((rec) => (
-                    <React.Fragment key={rec.id}>
-                    <tr className={`hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors group ${playingId === rec.id ? 'bg-primary-light/5' : ''}`}>
-                      <td className="px-8 py-5 font-bold text-primary-light flex items-center gap-3">
-                        <Mic2 className="w-4 h-4 opacity-30" />
-                        {rec.display_id || 'UNNAMED'}
-                      </td>
-                      <td className="px-8 py-5 text-sm font-bold text-slate-600 dark:text-slate-300">
-                        {rec.user_name || 'Anonymous'}
-                      </td>
-                      <td className="px-8 py-5 text-sm font-medium">{formatTime(rec.duration)}</td>
-                      <td className="px-8 py-5 text-sm text-slate-500">{new Date(rec.created_at).toLocaleString()}</td>
-                      <td className="px-8 py-5 text-right">
-                         <div className="flex justify-end gap-2">
-                           <button 
-                             onClick={() => handlePlayClick(rec)} 
-                             className={`p-2 rounded-lg transition-colors ${playingId === rec.id ? 'bg-primary-light text-white' : 'text-slate-400 hover:text-primary-light hover:bg-primary-light/10'}`}
-                           >
-                             {playingId === rec.id && !activeSignedUrl ? (
-                               <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                             ) : (
-                               <Play className={`w-5 h-5 ${playingId === rec.id ? 'fill-current' : ''}`} />
-                             )}
-                           </button>
-                           <button 
-                             onClick={() => downloadRecording(rec)} 
-                             className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                           >
-                             <Download className="w-5 h-5" />
-                           </button>
-                           <button onClick={() => deleteRecording(rec.id, rec.file_path)} disabled={isDeleting === rec.id} className="p-2 text-slate-400 hover:text-red-500 transition-colors disabled:opacity-50"><Trash2 className="w-5 h-5" /></button>
-                         </div>
-                      </td>
-                    </tr>
-                    {playingId === rec.id && (
-                      <tr className="bg-primary-light/[0.02] border-x-2 border-primary-light/20">
-                        <td colSpan={5} className="px-8 py-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredRecordings.map((rec) => (
+                <motion.div 
+                  key={rec.id} 
+                  layout
+                  className={`bg-[var(--card-bg)] border-2 rounded-[2rem] overflow-hidden transition-all duration-300 ${playingId === rec.id ? 'border-primary-light ring-4 ring-primary-light/5 shadow-xl' : 'border-[var(--border-color)] shadow-sm'}`}
+                >
+                  <div className="p-8">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-black text-primary-light uppercase tracking-widest opacity-60">Sequence ID</span>
+                        <h4 className="text-2xl font-archivo font-bold tracking-tight">{rec.display_id || 'UNNAMED'}</h4>
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => downloadRecording(rec)} 
+                          className="p-3 text-slate-400 hover:text-primary-light hover:bg-primary-light/10 rounded-xl transition-all"
+                          title="Download Audio"
+                        >
+                          <Download className="w-5 h-5" />
+                        </button>
+                        <button 
+                          onClick={() => deleteRecording(rec.id, rec.file_path)} 
+                          disabled={isDeleting === rec.id}
+                          className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50/50 rounded-xl transition-all disabled:opacity-50"
+                          title="Delete Recording"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 mb-8">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
+                          <User className="w-4 h-4 text-slate-400" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Operator</span>
+                          <span className="text-sm font-bold">{rec.user_name || 'Anonymous'}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2 text-slate-500">
+                          <Clock className="w-4 h-4" />
+                          <span className="text-sm font-medium">{formatTime(rec.duration)}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-500">
+                          <Tag className="w-4 h-4" />
+                          <span className="text-sm font-medium">{new Date(rec.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-6 border-t border-[var(--border-color)]">
+                      {playingId === rec.id ? (
+                        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                           {activeSignedUrl ? (
                             <CustomAudioPlayer 
                               src={activeSignedUrl} 
@@ -440,71 +448,27 @@ export const AdminDashboard = () => {
                               }} 
                             />
                           ) : (
-                            <div className="h-10 flex items-center justify-center gap-3 text-slate-400 text-sm font-bold animate-pulse">
+                            <div className="h-14 flex items-center justify-center gap-3 text-primary-light text-[10px] font-black uppercase tracking-widest bg-primary-light/5 rounded-2xl animate-pulse">
                               <div className="w-4 h-4 border-2 border-primary-light border-t-transparent rounded-full animate-spin" />
-                              PREPARING SECURE AUDIO...
+                              Securing Audio...
                             </div>
                           )}
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
-
-              {/* Mobile Card List View */}
-              <div className="md:hidden flex flex-col divide-y divide-[var(--border-color)]">
-                {filteredRecordings.map((rec) => (
-                  <div key={rec.id} className="p-6 flex flex-col gap-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-xs font-black text-primary-light uppercase tracking-tighter">Recording ID</span>
-                        <h4 className="text-xl font-bold">{rec.display_id || 'UNNAMED'}</h4>
-                      </div>
-                      <div className="flex gap-2">
-                         <button 
-                           onClick={() => handlePlayClick(rec)} 
-                           className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${playingId === rec.id ? 'bg-primary-light text-white scale-110' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
-                         >
-                           {playingId === rec.id && !activeSignedUrl ? (
-                             <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                           ) : (
-                             <Play className={`w-5 h-5 ${playingId === rec.id ? 'fill-current' : ''}`} />
-                           )}
-                         </button>
-                         <button onClick={() => downloadRecording(rec)} className="w-10 h-10 flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-xl"><Download className="w-5 h-5" /></button>
-                         <button onClick={() => deleteRecording(rec.id, rec.file_path)} className="w-10 h-10 flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-red-500 rounded-xl"><Trash2 className="w-5 h-5" /></button>
-                      </div>
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={() => handlePlayClick(rec)} 
+                          className="w-full py-4 bg-slate-100 dark:bg-slate-800 hover:bg-primary-light hover:text-white rounded-2xl flex items-center justify-center gap-3 font-bold transition-all group"
+                        >
+                          <Play className="w-5 h-5 fill-slate-400 group-hover:fill-white transition-colors" />
+                          <span className="uppercase tracking-widest text-xs">Review Recording</span>
+                        </button>
+                      )}
                     </div>
-
-                    <div className="flex items-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      <div className="flex items-center gap-1"><Clock className="w-3 h-3" /> {formatTime(rec.duration)}</div>
-                      <div className="flex items-center gap-1"><User className="w-3 h-3" /> {rec.user_name || 'Anonymous'}</div>
-                    </div>
-
-                    {playingId === rec.id && (
-                      <div className="mt-2 animate-in slide-in-from-top-2">
-                        {activeSignedUrl ? (
-                          <CustomAudioPlayer 
-                            src={activeSignedUrl} 
-                            onClose={() => {
-                              setPlayingId(null);
-                              setActiveSignedUrl(null);
-                            }} 
-                          />
-                        ) : (
-                          <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-slate-400 animate-pulse">
-                            <div className="w-3 h-3 border-2 border-primary-light border-t-transparent rounded-full animate-spin" />
-                            LOADING...
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
-                ))}
-              </div>
+                </motion.div>
+              ))}
             </div>
+
           </motion.div>
         )}
       </AnimatePresence>

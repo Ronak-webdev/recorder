@@ -17,7 +17,15 @@ export const useRecorder = () => {
 
   const startRecording = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000,
+          channelCount: 1
+        } 
+      });
       streamRef.current = stream;
       
       // Setup Web Audio for Live Waveform
@@ -29,7 +37,15 @@ export const useRecorder = () => {
       source.connect(analyserNode);
       setAnalyser(analyserNode);
 
-      const mediaRecorder = new MediaRecorder(stream);
+      // Try to use a high-quality codec
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') 
+        ? 'audio/webm;codecs=opus' 
+        : 'audio/webm';
+        
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType,
+        audioBitsPerSecond: 128000
+      });
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
@@ -40,7 +56,7 @@ export const useRecorder = () => {
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/wav' });
+        const blob = new Blob(chunksRef.current, { type: mimeType });
         const url = URL.createObjectURL(blob);
         setAudioBlob(blob);
         setAudioUrl(url);
@@ -53,7 +69,7 @@ export const useRecorder = () => {
         }
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(100); // Capture in 100ms chunks for stability
       setStatus('recording');
       
       // Start timer

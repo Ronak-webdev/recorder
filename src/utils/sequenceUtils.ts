@@ -29,9 +29,10 @@ export const SequenceUtils = {
       return this.incrementAlpha(currentValue);
     }
 
-    // 3. Fallback: just append a number if no pattern is found
-    return `${currentValue}1`;
+    // 3. Fallback: append 001 if no pattern is found
+    return `${currentValue}001`;
   },
+
 
   /**
    * Helper to increment alphabetical strings (A -> B, Z -> AA)
