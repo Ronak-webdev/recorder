@@ -183,23 +183,16 @@ function App() {
   const handleGoogleAuth = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.origin,
           queryParams: {
             prompt: 'select_account',
           },
-          skipBrowserRedirect: true,
         },
       })
       if (error) throw error
-      if (data?.url) {
-        const opened = window.open(data.url, '_blank', 'noopener,noreferrer')
-        if (!opened) {
-          window.location.assign(data.url)
-        }
-      }
     } catch (error: any) {
       alert(error.message || 'Failed to sign in with Google')
     } finally {
