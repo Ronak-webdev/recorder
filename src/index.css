@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  --bg-color: #ffffff;
+  --text-color: #0f172a;
+  --border-color: #e2e8f0;
+  --card-bg: #f8fafc;
+}
+
+.dark {
+  --bg-color: #020617;
+  --text-color: #f8fafc;
+  --border-color: #1e293b;
+  --card-bg: #0f172a;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Archivo', sans-serif;
+}
+
+/* Custom Scrollbar for Professional Feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
