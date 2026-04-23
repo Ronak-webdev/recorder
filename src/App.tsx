@@ -3,7 +3,7 @@ import { Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom'
 import { Mic, Shield, List, ChevronRight, Upload, X, Square, LayoutDashboard, Settings, Activity, User as UserIcon, Moon, Sun, Database, Sparkles, LogOut, Lock, Eye, EyeOff, UserCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from './lib/supabase'
-import { useRecorder } from './hooks/useRecorder'
+import { useRecorder, RecorderStatus } from './hooks/useRecorder'
 import { Waveform } from './components/Waveform'
 import { RecordingService } from './services/recordingService'
 import { AdminDashboard } from './components/AdminDashboard'
@@ -17,14 +17,14 @@ const formatTime = (s: number) => {
 }
 
 interface RecorderViewProps {
-  status: string
+  status: RecorderStatus
   startRecording: () => void
   stopRecording: () => void
   audioUrl: string | null
   audioBlob: Blob | null
   duration: number
   clearRecording: () => void
-  setStatus: (status: string) => void
+  setStatus: (status: RecorderStatus) => void
   analyser: AnalyserNode | null
   speakerId: string
   setSpeakerId: (id: string) => void
