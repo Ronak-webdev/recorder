@@ -10,6 +10,80 @@ import { AdminDashboard } from './components/AdminDashboard'
 import { SettingsView } from './components/SettingsView'
 import { SequenceUtils } from './utils/sequenceUtils'
 
+const formatTime = (s: number) => {
+  const mins = Math.floor(s / 60)
+  const secs = s % 60
+  return `${mins}:${secs.toString().padStart(2, '0')}`
+}
+
+interface RecorderViewProps {
+  status: string
+  startRecording: () => void
+  stopRecording: () => void
+  audioUrl: string | null
+  audioBlob: Blob | null
+  duration: number
+  clearRecording: () => void
+  setStatus: (status: string) => void
+  analyser: AnalyserNode | null
+  speakerId: string
+  setSpeakerId: (id: string) => void
+  predictedId: string
+  isRefreshing: boolean
+  isUploading: boolean
+  handleUpload: () => void
+}
+
+const RecorderView = ({ 
+  status, startRecording, stopRecording, audioUrl, duration, clearRecording, analyser, 
+  speakerId, setSpeakerId, predictedId, isRefreshing, isUploading, handleUpload 
+}: RecorderViewProps) => (
+  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8">
+    <div className="md:col-span-4 flex flex-col gap-6">
+      <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-6"><h3 className="text-sm font-archivo font-bold text-slate-400 uppercase tracking-widest">Pattern AI</h3><Sparkles className="w-4 h-4 text-primary-light animate-pulse" /></div>
+        <div className="space-y-6">
+          <div>
+            <label className="text-[10px] font-bold text-slate-400 mb-2 block uppercase tracking-widest">Set Starting Point</label>
+            <input type="text" value={speakerId} onChange={(e) => setSpeakerId(e.target.value)} disabled={status !== 'idle'} className="w-full bg-transparent border-b border-[var(--border-color)] py-2 text-2xl font-bold focus:outline-none focus:border-primary-light" />
+          </div>
+          <div className="pt-4 border-t border-[var(--border-color)]">
+            <label className="text-[10px] font-bold text-slate-500 mb-2 block uppercase tracking-widest">Next Smart ID</label>
+            <div className="flex items-center justify-between py-2"><span className={`text-2xl font-mono font-bold ${isRefreshing ? 'opacity-30' : 'text-primary-light'}`}>{predictedId}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div className="md:col-span-8 flex flex-col gap-6">
+      <div className="flex-1 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-3xl p-8 md:p-12 flex flex-col items-center justify-center gap-8 shadow-sm">
+        {status !== 'idle' && (
+          <Waveform url={audioUrl} isRecording={status === 'recording'} analyser={analyser} />
+        )}
+        <div className="flex flex-col items-center gap-6 w-full">
+          <div className="text-6xl font-mono font-light tracking-tighter text-slate-800 dark:text-slate-100">{formatTime(duration)}</div>
+          <div className="flex items-center gap-12">
+            <AnimatePresence mode="wait">
+              {status === 'idle' || status === 'recording' ? (
+                <button onClick={status === 'recording' ? stopRecording : startRecording} className={`w-24 h-24 rounded-full flex items-center justify-center shadow-lg ${status === 'recording' ? 'bg-red-500 text-white ring-4 ring-red-500/20' : 'bg-primary-light text-white hover:scale-105'}`}>
+                  {status === 'recording' ? <Square className="w-8 h-8 fill-current" /> : <Mic className="w-10 h-10" />}
+                </button>
+              ) : (
+                <div className="flex gap-6">
+                  <button onClick={clearRecording} className="w-16 h-16 bg-slate-100 dark:bg-slate-900 border border-[var(--border-color)] rounded-full flex items-center justify-center text-slate-500 hover:text-red-500"><X className="w-6 h-6" /></button>
+                  <button onClick={handleUpload} disabled={isUploading || status === 'success'} className={`h-16 px-12 rounded-full flex items-center gap-3 font-bold text-lg shadow-md ${status === 'success' ? 'bg-green-500 text-white' : 'bg-primary-light text-white'}`}>
+                    {isUploading ? '...' : status === 'success' ? 'SAVED' : <><Upload className="w-5 h-5" /> UPLOAD</>}
+                  </button>
+                </div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </div>
+  </motion.div>
+)
+
 function App() {
   const [session, setSession] = useState<any>(null)
   const [isSessionLoading, setIsSessionLoading] = useState(true)
@@ -176,12 +250,6 @@ function App() {
     }
   }
 
-  const formatTime = (s: number) => {
-    const mins = Math.floor(s / 60)
-    const secs = s % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
-
   if (isSessionLoading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
@@ -304,52 +372,6 @@ function App() {
     )
   }
 
-  const RecorderView = () => (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8">
-      <div className="md:col-span-4 flex flex-col gap-6">
-        <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6"><h3 className="text-sm font-archivo font-bold text-slate-400 uppercase tracking-widest">Pattern AI</h3><Sparkles className="w-4 h-4 text-primary-light animate-pulse" /></div>
-          <div className="space-y-6">
-            <div>
-              <label className="text-[10px] font-bold text-slate-400 mb-2 block uppercase tracking-widest">Set Starting Point</label>
-              <input type="text" value={speakerId} onChange={(e) => setSpeakerId(e.target.value)} disabled={status !== 'idle'} className="w-full bg-transparent border-b border-[var(--border-color)] py-2 text-2xl font-bold focus:outline-none focus:border-primary-light" />
-            </div>
-            <div className="pt-4 border-t border-[var(--border-color)]">
-              <label className="text-[10px] font-bold text-slate-500 mb-2 block uppercase tracking-widest">Next Smart ID</label>
-              <div className="flex items-center justify-between py-2"><span className={`text-2xl font-mono font-bold ${isRefreshing ? 'opacity-30' : 'text-primary-light'}`}>{predictedId}</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="md:col-span-8 flex flex-col gap-6">
-        <div className="flex-1 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-3xl p-8 md:p-12 flex flex-col items-center justify-center gap-8 shadow-sm">
-          {status !== 'idle' && (
-            <Waveform url={audioUrl} isRecording={status === 'recording'} analyser={analyser} />
-          )}
-          <div className="flex flex-col items-center gap-6 w-full">
-            <div className="text-6xl font-mono font-light tracking-tighter text-slate-800 dark:text-slate-100">{formatTime(duration)}</div>
-            <div className="flex items-center gap-12">
-              <AnimatePresence mode="wait">
-                {status === 'idle' || status === 'recording' ? (
-                  <button onClick={status === 'recording' ? stopRecording : startRecording} className={`w-24 h-24 rounded-full flex items-center justify-center shadow-lg ${status === 'recording' ? 'bg-red-500 text-white ring-4 ring-red-500/20' : 'bg-primary-light text-white hover:scale-105'}`}>
-                    {status === 'recording' ? <Square className="w-8 h-8 fill-current" /> : <Mic className="w-10 h-10" />}
-                  </button>
-                ) : (
-                  <div className="flex gap-6">
-                    <button onClick={clearRecording} className="w-16 h-16 bg-slate-100 dark:bg-slate-900 border border-[var(--border-color)] rounded-full flex items-center justify-center text-slate-500 hover:text-red-500"><X className="w-6 h-6" /></button>
-                    <button onClick={handleUpload} disabled={isUploading || status === 'success'} className={`h-16 px-12 rounded-full flex items-center gap-3 font-bold text-lg shadow-md ${status === 'success' ? 'bg-green-500 text-white' : 'bg-primary-light text-white'}`}>
-                      {isUploading ? '...' : status === 'success' ? 'SAVED' : <><Upload className="w-5 h-5" /> UPLOAD</>}
-                    </button>
-                  </div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  )
 
   const navItemClass = ({ isActive }: { isActive: boolean }) => 
     `flex flex-col md:flex-row items-center gap-1 md:gap-2 px-4 py-2 text-[10px] md:text-sm font-bold rounded-xl transition-all duration-300 ${
@@ -406,7 +428,25 @@ function App() {
 
       <main className="flex-1 p-6 md:p-12 overflow-y-auto">
         <Routes>
-          <Route path="/" element={<RecorderView />} />
+          <Route path="/" element={
+            <RecorderView 
+              status={status}
+              startRecording={startRecording}
+              stopRecording={stopRecording}
+              audioUrl={audioUrl}
+              audioBlob={audioBlob}
+              duration={duration}
+              clearRecording={clearRecording}
+              setStatus={setStatus}
+              analyser={analyser}
+              speakerId={speakerId}
+              setSpeakerId={setSpeakerId}
+              predictedId={predictedId}
+              isRefreshing={isRefreshing}
+              isUploading={isUploading}
+              handleUpload={handleUpload}
+            />
+          } />
           <Route path="/admin" element={
             session?.user?.email === 'ronakhos6666@gmail.com' 
               ? <AdminDashboard /> 
