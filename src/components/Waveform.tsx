@@ -24,7 +24,6 @@ export const Waveform = ({ url, isRecording, analyser }: Props) => {
       barWidth: 3,
       barGap: 4,
       barRadius: 4,
-      responsive: true,
       height: 100,
       normalize: true,
       partialRender: true,
