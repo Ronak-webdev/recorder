@@ -196,13 +196,13 @@ function App() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95, y: 20 }} 
           animate={{ opacity: 1, scale: 1, y: 0 }} 
-          className="w-full max-w-md liquid-glass p-8 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden group"
+          className="w-full max-w-md liquid-glass p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group"
         >
           {/* Subtle Decorative Glows */}
           <div className="absolute -top-24 -left-24 w-48 h-48 bg-primary-premium/10 rounded-full blur-3xl group-hover:bg-primary-premium/20 transition-colors duration-700" />
           <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-colors duration-700" />
 
-          <div className="flex flex-col items-center mb-10 relative z-10 text-center">
+          <div className="flex flex-col items-center mb-6 relative z-10 text-center">
             <motion.div 
               whileHover={{ scale: 1.05, rotate: 5 }}
               className="w-20 h-20 bg-gradient-to-tr from-amber-500 to-yellow-300 rounded-[2rem] flex items-center justify-center mb-6 shadow-xl shadow-amber-500/20 relative"
@@ -216,7 +216,7 @@ function App() {
             </p>
           </div>
           
-          <form onSubmit={handleAuth} className="space-y-6 relative z-10">
+          <form onSubmit={handleAuth} className="space-y-4 relative z-10">
             <div>
               <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] block mb-2 ml-1">Identity (Email)</label>
               <input 
@@ -252,12 +252,12 @@ function App() {
             <button 
               type="submit" 
               disabled={isLoading} 
-              className="w-full premium-gradient text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+              className="w-full premium-gradient text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
             >
               {isLoading ? 'Processing...' : (authForm.isLogin ? 'Initialize Session' : 'Create Identity')}
             </button>
 
-            <div className="relative my-10">
+            <div className="relative my-6">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[var(--border-color)] opacity-50"></div></div>
               <div className="relative flex justify-center text-[10px] font-black uppercase tracking-[0.3em]"><span className="bg-transparent px-4 text-slate-400">Gateway</span></div>
             </div>
@@ -266,14 +266,14 @@ function App() {
               type="button" 
               onClick={handleGoogleAuth} 
               disabled={isLoading} 
-              className="w-full bg-white dark:bg-slate-900 border border-[var(--border-color)] text-[var(--text-color)] py-5 rounded-2xl font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+              className="w-full bg-white dark:bg-slate-900 border border-[var(--border-color)] text-[var(--text-color)] py-4 rounded-2xl font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z"/></svg>
               Sign in with Google
             </button>
           </form>
           
-          <div className="mt-10 text-center relative z-10">
+          <div className="mt-6 text-center relative z-10">
             <button 
               onClick={() => setAuthForm({...authForm, isLogin: !authForm.isLogin})} 
               className="text-[10px] font-black text-primary-premium hover:text-amber-600 transition-colors uppercase tracking-widest border-b border-primary-premium/30 pb-1"
