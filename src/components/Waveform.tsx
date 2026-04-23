@@ -25,8 +25,6 @@ export const Waveform = ({ url, isRecording, analyser }: Props) => {
       barGap: 4,
       barRadius: 4,
       height: 100,
-      normalize: true,
-      partialRender: true,
     });
 
     wavesurfer.load(url);
