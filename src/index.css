@@ -10,6 +10,7 @@
   --text-color: #0f172a;
   --border-color: #e2e8f0;
   --card-bg: #f8fafc;
+  --premium-gold: #F59E0B;
 }
 
 .dark {
@@ -17,6 +18,7 @@
   --text-color: #f8fafc;
   --border-color: #1e293b;
   --card-bg: #0f172a;
+  --premium-gold: #FBBF24;
 }
 
 body {
@@ -28,9 +30,39 @@ body {
 
 h1, h2, h3, h4 {
   font-family: 'Archivo', sans-serif;
+  text-wrap: balance;
 }
 
-/* Custom Scrollbar for Professional Feel */
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .liquid-glass {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.premium-gradient {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+}
+
+.mesh-bg {
+  background-color: var(--bg-color);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%);
+}
+
+.dark .mesh-bg {
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }

@@ -11,8 +11,12 @@ export default {
         primary: {
           DEFAULT: '#0F172A', // Navy Dark
           light: '#3B82F6',   // Professional Blue
+          premium: '#F59E0B', // Premium Gold/Amber
         },
-        accent: '#22C55E',    // Professional Green for Success
+        accent: {
+          DEFAULT: '#22C55E',
+          gold: '#CA8A04',   // Deep Gold
+        },
         danger: '#EF4444',
       },
       fontFamily: {
