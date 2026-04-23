@@ -44,7 +44,8 @@ const RecorderView = ({
         <div className="flex items-center justify-between mb-6"><h3 className="text-sm font-archivo font-bold text-slate-400 uppercase tracking-widest">Pattern AI</h3><Sparkles className="w-4 h-4 text-primary-light animate-pulse" /></div>
         <div className="space-y-6">
           <div>
-            <label className="text-[10px] font-bold text-slate-400 mb-2 block uppercase tracking-widest">Set Starting Point</label>
+            <label className="text-[10px] font-bold text-slate-400 mb-2 block uppercase tracking-widest">Prefix / Starting Seed</label>
+
             <input type="text" value={speakerId} onChange={(e) => setSpeakerId(e.target.value)} disabled={status !== 'idle'} className="w-full bg-transparent border-b border-[var(--border-color)] py-2 text-2xl font-bold focus:outline-none focus:border-primary-light" />
           </div>
           <div className="pt-4 border-t border-[var(--border-color)]">

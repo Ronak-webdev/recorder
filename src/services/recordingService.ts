@@ -42,7 +42,14 @@ export const RecordingService = {
    */
   async getNextSmartId(seed: string): Promise<string> {
     try {
-      // Search for records where display_id starts with the seed
+      // 1. First, check if the EXACT seed exists
+      const { data: exactMatch } = await supabase
+        .from('recordings')
+        .select('display_id')
+        .eq('display_id', seed)
+        .limit(1);
+
+      // 2. Search for the latest record starting with this seed as a prefix
       const { data, error } = await supabase
         .from('recordings')
         .select('display_id')
@@ -50,28 +57,25 @@ export const RecordingService = {
         .order('display_id', { ascending: false })
         .limit(1);
 
-      // Handle errors gracefully
       if (error) {
-        console.warn('Database query error:', error.message);
-        return `${seed}001`;
+        console.warn('Database error, using fallback:', error.message);
+        return seed.match(/\d+$/) ? seed : `${seed}001`;
       }
 
+      // If no records at all, use seed as is
       if (!data || data.length === 0) {
-        // If no history found, check if the seed itself has a numeric pattern
-        const numericMatch = seed.match(/\d+$/);
-        if (numericMatch) return seed;
-        // Default to starting with 001
-        return `${seed}001`;
+        return seed;
       }
 
-      // If history found, use AI utility to predict the next step
-      return SequenceUtils.getNextValue(data[0].display_id);
+      // If exact seed exists, or other matches exist, increment the highest one
+      const latestId = data[0].display_id;
+      return SequenceUtils.getNextValue(latestId);
     } catch (err: any) {
       console.error('Unexpected error in getNextSmartId:', err);
-      // Return a timestamp-based fallback ID
       return `${seed}_${Date.now().toString().slice(-4)}`;
     }
   },
+
 
   async uploadAudio(blob: Blob, displayId: string): Promise<string> {
     const fileName = `${displayId}.wav`;
