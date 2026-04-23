@@ -188,7 +188,8 @@ function App() {
         options: {
           redirectTo: window.location.origin,
           queryParams: {
-            prompt: 'select_account',
+            prompt: 'consent select_account',
+            access_type: 'offline',
           },
         },
       })
